@@ -6,6 +6,11 @@ import util.IdGenerator;
 public class Account {
     protected String accountNo;//to access in child class
     protected User user;
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
     protected double balance;
     protected AccountType accountType;
     IdGenerator id = new IdGenerator();
@@ -47,6 +52,17 @@ public class Account {
         }else{
             return " Insufficient Balance";
         }
+    }
+
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "accountNo='" + accountNo + '\'' +
+                ", user=" + user +
+                ", balance=" + balance +
+                ", accountType=" + accountType +
+                '}';
     }
 
 

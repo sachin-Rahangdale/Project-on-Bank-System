@@ -13,10 +13,10 @@ public class IdGenerator {
 
         if(accountType== AccountType.SAVING){
             accountNo+= "_sav_"+ LocalDateTime.now().getYear()
-                    +counter;
+                    +counter++;
         }else{
             accountNo+= "_cur_"+ LocalDateTime.now().getYear()
-                    +counter;
+                    +counter++;
         }
         return accountNo;
     }
