@@ -1,4 +1,4 @@
 package service;
 
-public class BankService {
+public interface BankService {
 }
