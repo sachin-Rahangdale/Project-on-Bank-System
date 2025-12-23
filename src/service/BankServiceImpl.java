@@ -1,16 +1,15 @@
 package service;
-
 import constants.AccountType;
 import model.Account;
 import model.User;
 import repository.BankRepository;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static repository.BankRepository.account;
 
-public class BankServiceImpl implements BankService{
+public class BankServiceImpl implements BankService {
 
 
     @Override
@@ -57,8 +56,10 @@ public class BankServiceImpl implements BankService{
         System.out.println("Balance     : " + balance);
         System.out.println("AccountType : " + accountType);
         BankRepository.account.put(account.getAccountNo(), account);
-        String record = LocalDateTime.now()+ " | "+ "credit "+balance;
-        BankRepository.transactions.add(record);
+        String record = LocalDateTime.now() + " | " + "credit " + balance;
+        ArrayList<String> transaction = new ArrayList<>();
+        transaction.add(record);
+        BankRepository.transactions.put(account.getAccountNo(), transaction);
 
     }
 
@@ -67,16 +68,18 @@ public class BankServiceImpl implements BankService{
         System.out.println("enter the account no: ");
         String acc_no = sc.nextLine();
         Account account = BankRepository.account.get(acc_no);
-        if(account == null){
+        if (account == null) {
             System.out.println("Account with entered doesnt exist");
-        }else{
+        } else {
             System.out.println("Enter the amount to be deposited");
             double depositamount = sc.nextDouble();
             double newBalance = account.getBalance() + depositamount;
-            String record = LocalDateTime.now()+ " | "+ "credit "+ depositamount;
+            String record = LocalDateTime.now() + " | " + "deposited " + depositamount;
             account.setBalance(newBalance);
-            BankRepository.transactions.add(record);
-            System.out.println("Updated balance is "+ account.getBalance());
+            ArrayList<String> transaction = BankRepository.transactions.get(account.getAccountNo());
+            transaction.add(record);
+            BankRepository.transactions.put(account.getAccountNo(), transaction);
+            System.out.println("Updated balance is " + account.getBalance());
             System.out.println(record);
         }
     }
@@ -87,49 +90,73 @@ public class BankServiceImpl implements BankService{
         System.out.println("enter the account no: ");
         String acc_no = sc.nextLine();
         Account account = BankRepository.account.get(acc_no);
-        if(account == null){
-            System.out.println("Account with entered doesnt exist");
-        }else{
+        if (account == null) {
+            throw new RuntimeException("Account with entered doesnt exist");
+        } else {
             System.out.println("Enter the amount to withdraw");
             double withdrawAmount = sc.nextDouble();
-            if(withdrawAmount>account.getBalance()){
+            if (withdrawAmount > account.getBalance()) {
                 System.out.println("you dont have enough amount to withdraw");
-            }else{
-                double newBalance = account.getBalance()-withdrawAmount;
+            } else {
+                double newBalance = account.getBalance() - withdrawAmount;
                 account.setBalance(newBalance);
-                String record = LocalDateTime.now()+ " | "+ "withdraw "+ withdrawAmount ;
-                BankRepository.transactions.add(record);
-                System.out.println("remaining balance is "+ account.getBalance());
+                String record = LocalDateTime.now() + " | " + "withdraw " + withdrawAmount;
+                ArrayList<String> transaction = BankRepository.transactions.get(account.getAccountNo());
+                transaction.add(record);
+                BankRepository.transactions.put(account.getAccountNo(), transaction);
+                System.out.println("remaining balance is " + account.getBalance());
                 System.out.println(record);
-
             }
         }
     }
-
     @Override
-    public void showAccountDetails() {
+    public Account showAccountDetails() {
         Scanner sc = new Scanner(System.in);
         System.out.println("enter the account no to get details ");
         String acc_no = sc.nextLine();
         Account account = BankRepository.account.get(acc_no);
-        if(account==null){
+        if (account == null) {
             System.out.println(" no account exist with this account number please enter the correct one");
         }
-        System.out.println(account);
-
+        return account;
     }
-
     @Override
     public void showAllAccounts() {
-        if(account.isEmpty()){
+        if (account.isEmpty()) {
             System.out.println(" no account has been created till now: ");
-        }else{
+        } else {
             System.out.println(" Created Accounts are: ");
-            for(Account acc : account.values()){
+            for (Account acc : account.values()) {
                 System.out.println(acc);
                 System.out.println("---------");
             }
         }
-
     }
+    public void getTransaction(int page, int limit) {
+        int skip = limit * (page - 1);
+
+        Account account = showAccountDetails();
+        if (account == null) return;
+
+        ArrayList<String> tr =
+                BankRepository.transactions.get(account.getAccountNo());
+
+        if (tr == null || tr.isEmpty()) {
+            System.out.println("No transactions found");
+            return;
+        }
+
+        if (skip >= tr.size()) {
+            System.out.println("do not have enough Transactions");
+            return;
+        }
+
+        int endIndex = Math.min(skip + limit, tr.size());
+
+        for (int i = skip; i < endIndex; i++) {
+            System.out.println(tr.get(i));
+        }
+    }
+
 }
+

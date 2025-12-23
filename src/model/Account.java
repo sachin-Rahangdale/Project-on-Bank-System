@@ -6,11 +6,9 @@ import util.IdGenerator;
 public class Account {
     protected String accountNo;//to access in child class
     protected User user;
-
     public void setBalance(double balance) {
         this.balance = balance;
     }
-
     protected double balance;
     protected AccountType accountType;
     IdGenerator id = new IdGenerator();
